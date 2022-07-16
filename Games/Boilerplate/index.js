@@ -37,6 +37,30 @@ class Projectile {
   }
 
   update() {
+    this.draw()
+    this.x = this.x + this.velocity.x
+    this.y = this.y + this.velocity.y
+  }
+}
+
+class Enemy {
+  constructor(x, y, raduis, color, velocity) {
+    this.x = x
+    this.y = y
+    this.raduis = raduis
+    this.color = color
+    this.velocity = velocity
+  }
+
+  draw() {
+    c.beginPath()
+    c.arc(this.x, this.y, this.raduis, 0, Math.PI * 2, false);
+    c.fillStyle = this.color
+    c.fill()
+  }
+
+  update() {
+    this.draw()
     this.x = this.x + this.velocity.x
     this.y = this.y + this.velocity.y
   }
@@ -44,26 +68,49 @@ class Projectile {
 
 const x = canvas.width / 2
 const y = canvas.height / 2
+
 const player = new Player(x, y, 30, 'blue')
-player.draw()
-const projectile = new Projectile(
-  canvas.width / 2,
-  canvas.height / 2,
-  5,
-  'red', 
-  {
-    x: 1,
-    y: 1
-  }
-)
+const projectiles = []
+const enemies = []
+
+function spawnEnemies() {
+  setInterval(() => {
+    const raduis = 30
+    const x = ? 0 - raduis
+    const y = Math.random() * canvas.height
+    const color = 'green'
+
+    const angle = Math.atan2(canvas.height / 2 - y, canvas.width / 2 - x)
+    const velocity = {
+      x: Math.cos(angle),
+      y: Math.sin(angle)
+    }
+
+    enemies.push(new Enemy(x, y, raduis, color, velocity))
+  }, 1000)
+}
 
 function animate() {
   requestAnimationFrame(animate)
-  projectile.draw()
-  projectile.update()
+  c.clearRect(0, 0, canvas.width, canvas.height)
+  player.draw()
+  projectiles.forEach(projectile => {
+    projectile.update()
+  })
+
+  enemies.forEach(enemy => {
+    enemy.update()
+  })
 }
 
 addEventListener('click', (event) => {
+  const angle = Math.atan2(event.clientY - canvas.height / 2, event.clientX - canvas.width / 2)
+  const velocity = {
+    x: Math.cos(angle),
+    y: Math.sin(angle)
+  }
+  projectiles.push(new Projectile(canvas.width / 2, canvas.height / 2, 5, 'red', velocity))
 })
 
 animate()
+spawnEnemies()
